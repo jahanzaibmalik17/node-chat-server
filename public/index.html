@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat App</title>
+</head>
+
+<body>
+    <h1>Real-Time Chat App</h1>
+    <div id="messages">
+        <ul id="message-list"></ul>
+    </div>
+    <input id="txtName" class="form-control" placeholder="Name" type="text"><br><br>
+    <input id="txtMessage" class="form-control" placeholder="Type your message..."></input><br><br>
+    <button id="send" class="btn btn-success">Send</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#send").click(() => {
+                const chatObj = {
+                    name: $("#txtName").val(),
+                    message: $("#txtMessage").val()
+                }
+                postChat(chatObj)
+            })
+
+
+            function postChat(chat) {
+                $.ajax({
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    url: 'http://localhost:3000/chats',
+                    type: 'POST',
+                    data: JSON.stringify(chat),
+                    success: function (response) {
+                        console.log("success");
+                    },
+                    error: function () {
+                        console.log("error");
+                    }
+                });
+            }
+
+            function getChats() {
+                $.get("/chats", (chats) => {
+                    forEach(addChat)
+                })
+            }
+
+            const socket = io();
+            socket.on("chat", addChat)
+
+            function addChat(chatObj) {
+                $("#messages").append(`<h5>${chatObj.name}</h5><p>${chatObj.message}</p>`);
+            }
+        });   
+    </script>
+</body>
+
+</html>
